@@ -36,6 +36,14 @@ func paramID(c fiber.Ctx, name string) (int64, *errors.AppError) {
 	return id, nil
 }
 
+func (h *ClubHandler) Regions(c fiber.Ctx) error {
+	rows, err := h.svc.Regions(c.Query("country"))
+	if err != nil {
+		return response.Error(c, err)
+	}
+	return response.OK(c, fiber.Map{"items": rows})
+}
+
 func (h *ClubHandler) List(c fiber.Ctx) error {
 	limit, _ := strconv.Atoi(c.Query("limit", "50"))
 	offset, _ := strconv.Atoi(c.Query("offset", "0"))

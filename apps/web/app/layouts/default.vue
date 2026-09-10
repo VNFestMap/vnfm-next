@@ -28,10 +28,16 @@ const setColorMode = (mode: string) => {
         <NuxtLink to="/" class="flex min-w-0 items-center gap-2">
           <span class="text-primary truncate text-lg font-bold">VNFest</span>
         </NuxtLink>
-        <NuxtLink to="/" class="text-default-500 hover:text-foreground hidden text-sm sm:inline">
-          目录
+        <NuxtLink
+          to="/"
+          class="text-default-500 hover:text-foreground hidden text-sm sm:inline"
+        >
+          地图
         </NuxtLink>
-        <NuxtLink to="/events" class="text-default-500 hover:text-foreground hidden text-sm sm:inline">
+        <NuxtLink
+          to="/events"
+          class="text-default-500 hover:text-foreground hidden text-sm sm:inline"
+        >
           活动
         </NuxtLink>
       </div>

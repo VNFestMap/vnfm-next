@@ -1,89 +1,153 @@
 <script setup lang="ts">
+import { type HomeClub } from '~/constants/regions'
 import { apiFetch } from '~/utils/api'
+import type { MapCountry } from '~/utils/map-renderer'
 
-type Club = {
-  id: number
-  country: string
-  name: string
-  school: string
-  province: string
-  prefecture: string
-  city: string
-  type: string
-}
+type RegionCount = { key: string; count: number }
 
+const mode = ref<'map' | 'list'>('map')
+const country = ref<MapCountry>('china')
+const selected = ref('')
+const introCollapsed = ref(false)
+const selectedCollapsed = ref(false)
+const drawerOpen = ref(false)
 const q = ref('')
-const country = ref('all')
-const items = ref<Club[]>([])
+const typeFilter = ref('all')
+const sort = ref('default')
+const clubs = ref<HomeClub[]>([])
+const regions = ref<RegionCount[]>([])
 const total = ref(0)
 const loading = ref(true)
 
-const load = async () => {
+const counts = computed(() =>
+  Object.fromEntries(regions.value.map((row) => [row.key, row.count]))
+)
+
+const selectedTitle = computed(() =>
+  selected.value ? `${selected.value}同好会` : '全国Galgame同好会数据'
+)
+const selectedSubtitle = computed(() => `${total.value} 个组织`)
+const selectedMeta = computed(() => {
+  const label = country.value === 'japan' ? '日本' : '中国'
+  return selected.value ? `${label} · ${selected.value}` : `${label} · 全部`
+})
+
+const loadRegions = async () => {
+  const data = await apiFetch<{ items: RegionCount[] }>(
+    `/clubs/regions?country=${country.value}`
+  )
+  regions.value = data.items || []
+}
+
+const loadClubs = async () => {
   loading.value = true
   try {
-    const data = await apiFetch<{ items: Club[]; total: number }>(
-      `/clubs?q=${encodeURIComponent(q.value)}&country=${country.value}`
+    const params = new URLSearchParams({
+      country: country.value,
+      q: q.value,
+      type: typeFilter.value,
+      limit: '200'
+    })
+    if (selected.value) params.set('province', selected.value)
+    const data = await apiFetch<{ items: HomeClub[]; total: number }>(
+      `/clubs?${params.toString()}`
     )
-    items.value = data.items || []
+    clubs.value = data.items || []
     total.value = data.total || 0
   } finally {
     loading.value = false
   }
 }
 
-onMounted(load)
+const reload = async () => {
+  await Promise.all([loadRegions(), loadClubs()])
+}
 
-const region = (c: Club) => {
-  if (c.country === 'japan') return c.prefecture || '日本'
-  return c.province || c.city || '中国'
+watch(country, async () => {
+  selected.value = ''
+  await reload()
+})
+
+watch([selected, typeFilter], loadClubs)
+
+let searchTimer = 0
+watch(q, () => {
+  if (!import.meta.client) return
+  window.clearTimeout(searchTimer)
+  searchTimer = window.setTimeout(loadClubs, 220)
+})
+
+onMounted(reload)
+
+const onSelectRegion = (name: string) => {
+  selected.value = selected.value === name ? '' : name
+  selectedCollapsed.value = false
 }
 </script>
 
 <template>
-  <div class="mx-auto max-w-3xl space-y-6">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 class="text-foreground text-2xl font-bold">同好会目录</h1>
-        <p class="text-default-500 mt-2 text-sm">中日高校视觉小说同好会导航</p>
-      </div>
-      <KunButton color="primary" @click="navigateTo('/clubs/new')">
-        创建同好会
-      </KunButton>
-    </div>
-
-    <div class="flex flex-wrap gap-3">
-      <KunInput v-model="q" placeholder="搜索名称、学校、地区" @keyup.enter="load" />
-      <KunTab
-        v-model="country"
-        :items="[
-          { textValue: '全部', value: 'all' },
-          { textValue: '中国', value: 'china' },
-          { textValue: '日本', value: 'japan' }
-        ]"
-        size="sm"
-        variant="solid"
-        @update:model-value="load"
+  <div class="vnfm-map-page">
+    <ClientOnly>
+      <HomeMapCanvas
+        v-show="mode === 'map'"
+        :active="mode === 'map'"
+        :country="country"
+        :counts="counts"
+        :selected="selected"
+        @select="onSelectRegion"
       />
-      <KunButton variant="flat" @click="load">搜索</KunButton>
-    </div>
+    </ClientOnly>
 
-    <p v-if="loading" class="text-default-500 text-sm">加载中…</p>
-    <p v-else-if="!items.length" class="text-default-500 text-sm">暂无同好会。</p>
-    <div v-else class="space-y-3">
-      <NuxtLink
-        v-for="c in items"
-        :key="c.id"
-        :to="`/clubs/${c.id}`"
-        class="block"
-      >
-        <KunCard class="hover:border-primary-200 p-4 transition-colors">
-          <p class="text-foreground font-semibold">{{ c.name }}</p>
-          <p class="text-default-500 mt-1 text-sm">
-            {{ region(c) }} · {{ c.school || '未填写学校' }}
-          </p>
-        </KunCard>
-      </NuxtLink>
-      <p class="text-default-400 text-xs">共 {{ total }} 个</p>
-    </div>
+    <template v-if="mode === 'map'">
+      <HomeTopBar v-model:mode="mode" v-model:country="country" />
+      <HomeIntroCard v-model:collapsed="introCollapsed" />
+      <HomeSelectedCard
+        v-model:collapsed="selectedCollapsed"
+        :title="selectedTitle"
+        :subtitle="selectedSubtitle"
+        :meta="selectedMeta"
+        :clubs="clubs"
+        :loading="loading"
+        :q="q"
+        :type-filter="typeFilter"
+        :sort="sort"
+        @update:q="q = $event"
+        @update:type-filter="typeFilter = $event"
+        @update:sort="sort = $event"
+        @search="loadClubs"
+      />
+      <div class="absolute top-36 left-3 z-30 md:hidden">
+        <KunButton
+          size="sm"
+          is-icon-only
+          variant="flat"
+          aria-label="菜单"
+          @click="drawerOpen = true"
+        >
+          <KunIcon name="lucide:menu" class="size-4" />
+        </KunButton>
+      </div>
+    </template>
+
+    <HomeListMode
+      v-else
+      v-model:mode="mode"
+      v-model:country="country"
+      :regions="regions"
+      :selected="selected"
+      :clubs="clubs"
+      :total="total"
+      :loading="loading"
+      :q="q"
+      :type-filter="typeFilter"
+      :sort="sort"
+      @update:selected="selected = $event"
+      @update:q="q = $event"
+      @update:type-filter="typeFilter = $event"
+      @update:sort="sort = $event"
+      @open-drawer="drawerOpen = true"
+    />
+
+    <HomeMobileDrawer v-model="drawerOpen" />
   </div>
 </template>

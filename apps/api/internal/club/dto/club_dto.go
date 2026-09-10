@@ -17,6 +17,12 @@ type ClubSummary struct {
 	CanApply      bool   `json:"can_apply"`
 	MyRole        string `json:"my_role,omitempty"`
 	MyStatus      string `json:"my_status,omitempty"`
+	CreatedAt     string `json:"created_at,omitempty"`
+}
+
+type RegionCount struct {
+	Key   string `json:"key"`
+	Count int64  `json:"count"`
 }
 
 type CreateClubRequest struct {

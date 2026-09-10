@@ -20,8 +20,8 @@ var manageRoles = map[string]bool{"manager": true, "representative": true}
 var formalRoles = map[string]bool{"member": true, "manager": true, "representative": true}
 
 type ClubService struct {
-	repo    *repository.ClubRepository
-	notify  *notify.NotifyService
+	repo   *repository.ClubRepository
+	notify *notify.NotifyService
 }
 
 func NewClubService(repo *repository.ClubRepository, n *notify.NotifyService) *ClubService {
@@ -38,6 +38,21 @@ func (s *ClubService) List(viewerID int64, q, country, province, typ string, lim
 		out = append(out, s.toSummary(&c, viewerID, false))
 	}
 	return out, total, nil
+}
+
+func (s *ClubService) Regions(country string) ([]dto.RegionCount, *errors.AppError) {
+	if country != "japan" {
+		country = "china"
+	}
+	rows, err := s.repo.RegionCounts(country)
+	if err != nil {
+		return nil, errors.ErrInternal("读取地区统计失败")
+	}
+	out := make([]dto.RegionCount, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, dto.RegionCount{Key: r.Key, Count: r.Count})
+	}
+	return out, nil
 }
 
 func (s *ClubService) Get(id, viewerID int64) (*dto.ClubSummary, *errors.AppError) {
@@ -497,6 +512,7 @@ func (s *ClubService) toSummary(c *model.Club, viewerID int64, detail bool) dto.
 		Type:          c.Type,
 		LogoKey:       c.LogoKey,
 		ContactHidden: c.ContactHidden,
+		CreatedAt:     c.CreatedAt.UTC().Format(time.RFC3339),
 	}
 	canSee := !c.ContactHidden
 	if viewerID > 0 {

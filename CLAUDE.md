@@ -2,7 +2,7 @@
 
 VNFest club map rewrite. `apps/api` = Go Fiber + GORM + Postgres (planned). `apps/web` = Nuxt 4 + KunUI (planned). This repo is an **independent product** that borrows NextMoe·未萌 **OIDC only** (catalog later, not in v1). It is **not** a nextmoe-infra downstream.
 
-**Current build scope:** [docs/05-v1-scope.md](docs/05-v1-scope.md) — users, club create/join, events, notifications. Everything else is frozen.
+**Current build scope:** [docs/05-v1-scope.md](docs/05-v1-scope.md) — users, club create/join, events, notifications, China/Japan maps. Everything else is frozen.
 
 ## 铁律 (Iron Rules — non-negotiable; these override every other guideline in this file)
 
@@ -110,6 +110,6 @@ After any schema change, end the task with: whether a production migration must 
 
 ## What “frozen” means in the tree
 
-Do not add routes, Vue pages, or migrations for: D3 maps, star map, club comments/recommendations/moe king, publications, project hub, GalOnly, wiki, forum, square, vote/moe/twelve, recognition, quiz, bots, simulators, announcements, local password auth, nextmoe image/catalog clients.
+Do not add routes, Vue pages, or migrations for: Jiangsu submap, Asia basemap, star map / star union, club comments/recommendations/moe king, publications, project hub, GalOnly, wiki, forum, square, vote/moe/twelve, recognition, quiz, bots, simulators, announcements, local password auth, nextmoe image/catalog clients.
 
 If a user request is frozen, say so and point at `docs/05-v1-scope.md` instead of implementing it.

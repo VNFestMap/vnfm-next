@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  CHINA_PROVINCES,
+  CLUB_TYPES,
+  JAPAN_PREFECTURES
+} from '~/constants/regions'
 import { apiFetch } from '~/utils/api'
 
 const { store, fetchMe } = useSession()
@@ -57,13 +62,28 @@ const submit = async () => {
         variant="solid"
       />
       <KunInput v-model="form.school" label="学校" />
-      <KunInput
+      <KunSelect
         v-if="form.country === 'china'"
         v-model="form.province"
         label="省份"
+        placeholder="选择省份"
+        :options="CHINA_PROVINCES.map((item) => ({ value: item, label: item }))"
       />
-      <KunInput v-else v-model="form.prefecture" label="都道府县" />
+      <KunSelect
+        v-else
+        v-model="form.prefecture"
+        label="都道府县"
+        placeholder="选择都道府县"
+        :options="
+          JAPAN_PREFECTURES.map((item) => ({ value: item, label: item }))
+        "
+      />
       <KunInput v-model="form.city" label="城市" />
+      <KunSelect
+        v-model="form.type"
+        label="类型"
+        :options="CLUB_TYPES.filter((item) => item.value !== 'all')"
+      />
       <KunInput v-model="form.info" label="介绍 / 联系方式" />
       <label class="text-default-500 flex items-center gap-2 text-sm">
         <input v-model="form.contact_hidden" type="checkbox" />

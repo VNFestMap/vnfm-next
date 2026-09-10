@@ -95,6 +95,7 @@ func (a *App) setupRoutes() {
 	v1.Post("/notifications/:id/read", authMw, nH.MarkRead)
 
 	v1.Get("/clubs", optMw, cH.List)
+	v1.Get("/clubs/regions", optMw, cH.Regions)
 	v1.Get("/clubs/:id", optMw, cH.Get)
 	v1.Post("/clubs", authMw, cH.Create)
 	v1.Patch("/clubs/:id", authMw, cH.Update)

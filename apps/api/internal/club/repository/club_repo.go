@@ -35,12 +35,36 @@ func (r *ClubRepository) List(q, country, province, typ string, limit, offset in
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	if limit <= 0 || limit > 100 {
+	if limit <= 0 {
 		limit = 50
+	}
+	if limit > 500 {
+		limit = 500
 	}
 	var rows []model.Club
 	err := query.Order("id DESC").Limit(limit).Offset(offset).Find(&rows).Error
 	return rows, total, err
+}
+
+type RegionCountRow struct {
+	Key   string
+	Count int64
+}
+
+func (r *ClubRepository) RegionCounts(country string) ([]RegionCountRow, error) {
+	col := "province"
+	if country == "japan" {
+		col = "prefecture"
+	}
+	var rows []RegionCountRow
+	err := r.db.Model(&model.Club{}).
+		Select(col+" AS key, COUNT(*) AS count").
+		Where("country = ?", country).
+		Where(col + " <> ''").
+		Group(col).
+		Order("count DESC, key ASC").
+		Scan(&rows).Error
+	return rows, err
 }
 
 func (r *ClubRepository) FindByID(id int64) (*model.Club, error) {
