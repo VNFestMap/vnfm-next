@@ -17,9 +17,10 @@ func New(code int, message string, statusCode int) *AppError {
 }
 
 const (
-	CodeOK   = 0
-	CodeAuth = 205
-	CodeBiz  = 233
+	CodeOK     = 0
+	CodeAuth   = 205
+	CodeBiz    = 233
+	CodeBanned = 234
 )
 
 func ErrUnauthorized(msg string) *AppError {
@@ -28,6 +29,10 @@ func ErrUnauthorized(msg string) *AppError {
 
 func ErrAuthExpired() *AppError {
 	return New(CodeAuth, "用户登录失效", 401)
+}
+
+func ErrAccountBanned() *AppError {
+	return New(CodeBanned, "账号已封禁", 403)
 }
 
 func ErrForbidden(msg string) *AppError {

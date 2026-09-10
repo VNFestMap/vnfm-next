@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	Redis    RedisConfig
 	CORS     CORSConfig
 	OIDC     OIDCConfig
 	R2       R2Config
@@ -26,12 +27,21 @@ type DatabaseConfig struct {
 	ConnMaxLifetime int
 }
 
+type RedisConfig struct {
+	Host     string
+	Port     string
+	Password string
+	DB       int
+}
+
 type CORSConfig struct {
 	AllowOrigins string
 }
 
 type OIDCConfig struct {
 	Issuer       string
+	ServerURL    string
+	FrontendURL  string
 	ClientID     string
 	ClientSecret string
 	RedirectURI  string
@@ -58,11 +68,19 @@ func Load() (*Config, error) {
 			MaxIdleConns:    envOrDefaultInt("DB_MAX_IDLE_CONNS", 10),
 			ConnMaxLifetime: envOrDefaultInt("DB_CONN_MAX_LIFETIME", 300),
 		},
+		Redis: RedisConfig{
+			Host:     envOrDefault("REDIS_HOST", "127.0.0.1"),
+			Port:     envOrDefault("REDIS_PORT", "6379"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       envOrDefaultInt("REDIS_DB", 0),
+		},
 		CORS: CORSConfig{
 			AllowOrigins: envOrDefault("CORS_ALLOW_ORIGINS", "http://127.0.0.1:3710"),
 		},
 		OIDC: OIDCConfig{
-			Issuer:       envOrDefault("OIDC_ISSUER", "https://account.nextmoe.com"),
+			Issuer:       envOrDefault("OIDC_ISSUER", "http://127.0.0.1:9277"),
+			ServerURL:    envOrDefault("OIDC_SERVER_URL", "http://127.0.0.1:9277/api/v1"),
+			FrontendURL:  envOrDefault("OIDC_FRONTEND_URL", "http://127.0.0.1:9420"),
 			ClientID:     os.Getenv("OIDC_CLIENT_ID"),
 			ClientSecret: os.Getenv("OIDC_CLIENT_SECRET"),
 			RedirectURI:  envOrDefault("OIDC_REDIRECT_URI", "http://127.0.0.1:3710/auth/callback"),

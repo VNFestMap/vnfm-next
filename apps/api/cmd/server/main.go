@@ -14,6 +14,7 @@ import (
 	"vnfm-api/pkg/logger"
 
 	"github.com/joho/godotenv"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -33,15 +34,18 @@ func main() {
 	}
 	logger.Init(cfg.Server.Mode)
 
-	application := app.New(cfg, nil)
+	rdb := app.RedisFromConfig(cfg)
+
+	var db *gorm.DB
 	if cfg.Database.URL != "" {
-		db, err := database.Open(cfg.Database, cfg.Server.Mode)
+		db, err = database.Open(cfg.Database, cfg.Server.Mode)
 		if err != nil {
 			slog.Error("open database", "error", err)
 			os.Exit(1)
 		}
-		application.DB = db
 	}
+
+	application := app.New(cfg, db, rdb)
 
 	go func() {
 		quit := make(chan os.Signal, 1)

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
+const { store, fetchMe } = useSession()
+
+onMounted(() => {
+  if (!store.profile) {
+    fetchMe()
+  }
+})
 
 const colorModeOptions = [
   { value: 'light', label: '浅色', icon: 'lucide:sun' },
@@ -22,6 +29,16 @@ const setColorMode = (mode: string) => {
       </NuxtLink>
 
       <div class="flex shrink-0 items-center gap-2">
+        <KunButton
+          v-if="store.isLoggedIn"
+          variant="light"
+          @click="navigateTo('/user')"
+        >
+          用户中心
+        </KunButton>
+        <KunButton v-else color="primary" @click="navigateTo('/auth/login')">
+          登录 / 注册
+        </KunButton>
         <KunPopover position="bottom-end">
           <template #trigger>
             <KunButton

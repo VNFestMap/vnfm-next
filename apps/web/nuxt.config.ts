@@ -74,8 +74,13 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://127.0.0.1:3711/api/v1',
       oidcIssuer:
-        process.env.NUXT_PUBLIC_OIDC_ISSUER || 'https://account.nextmoe.com',
-      oidcClientId: process.env.NUXT_PUBLIC_OIDC_CLIENT_ID || '',
+        process.env.NUXT_PUBLIC_OIDC_ISSUER || 'http://127.0.0.1:9277',
+      oidcServerUrl:
+        process.env.NUXT_PUBLIC_OIDC_SERVER_URL ||
+        'http://127.0.0.1:9277/api/v1',
+      oidcFrontendUrl:
+        process.env.NUXT_PUBLIC_OIDC_FRONTEND_URL || 'http://127.0.0.1:9420',
+      oidcClientId: process.env.NUXT_PUBLIC_OIDC_CLIENT_ID || 'vnfm-dev',
       oidcRedirectUri:
         process.env.NUXT_PUBLIC_OIDC_REDIRECT_URI ||
         'http://127.0.0.1:3710/auth/callback',
