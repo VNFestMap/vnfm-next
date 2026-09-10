@@ -64,6 +64,7 @@ Read before coding:
 | [docs/00-modules.md](docs/00-modules.md) | Domain boundaries (Club / Ops / …) |
 | [docs/04-nextmoe-architecture.md](docs/04-nextmoe-architecture.md) | OIDC borrow, no S2S, R2, local authz |
 | [docs/01-core-platform.md](docs/01-core-platform.md) / [02](docs/02-community-operations.md) / [03](docs/03-contests-and-satellites.md) | Original-site inventory only |
+| [docs/06-data-migration.md](docs/06-data-migration.md) | Legacy dump + JSON import |
 
 `../kun-galgame-forum` is a **code-shape** reference (Nuxt pages, Fiber layers, OIDC BFF cookie). Do not copy its downstream topology, `/users/batch` client, image hashes, or IdP-role gates.
 

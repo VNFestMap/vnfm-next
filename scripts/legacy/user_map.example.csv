@@ -1,0 +1,2 @@
+legacy_id,email,username,oidc_id,notes
+2,user@example.com,test,2,example only — replace oidc_id with NextMoe user id
