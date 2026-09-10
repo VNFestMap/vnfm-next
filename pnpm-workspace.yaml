@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+
+allowBuilds:
+  "@parcel/watcher": true
+  esbuild: true
+  unrs-resolver: true
+  vue-demi: true
+
+minimumReleaseAgeExclude:
+  - "@kungal/ui-core@2.32.0"
+  - "@kungal/ui-nuxt@2.32.0"
+  - "@kungal/ui-tokens@2.32.0"
+  - "@kungal/ui-vue@2.32.0"
+  - "@rolldown/binding-openharmony-arm64@1.2.8"

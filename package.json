@@ -1,0 +1,23 @@
+{
+  "name": "vnfm-next",
+  "private": true,
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "dev": "pnpm -F \"./apps/**\" --parallel --stream run dev",
+    "dev:web": "pnpm -F web run dev",
+    "dev:api": "pnpm -F @apps/api run dev",
+    "build": "pnpm run build:api && pnpm run build:web",
+    "build:web": "pnpm -F web run build",
+    "build:api": "pnpm -F @apps/api run build",
+    "lint": "pnpm -F web run lint",
+    "lint:fix": "pnpm -F web run lint:fix",
+    "typecheck": "pnpm -F web run typecheck",
+    "migrate": "pnpm -F @apps/api run migrate",
+    "migrate:down": "pnpm -F @apps/api run migrate:down"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "eslint-plugin-vuejs-accessibility": "^2.5.0",
+    "typescript": "^5.9.3"
+  }
+}

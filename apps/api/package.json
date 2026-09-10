@@ -1,0 +1,15 @@
+{
+  "name": "@apps/api",
+  "private": true,
+  "scripts": {
+    "dev": "air",
+    "build": "go build -o ./build/server ./cmd/server",
+    "start": "./build/server",
+    "migrate": "go run ./cmd/migrate -dir up",
+    "migrate:down": "go run ./cmd/migrate -dir down -step 1",
+    "format": "gofmt -w -s .",
+    "vet": "go vet ./...",
+    "test": "go test ./...",
+    "tidy": "go mod tidy"
+  }
+}

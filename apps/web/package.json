@@ -1,0 +1,46 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "icons": "node scripts/generate-icons.mjs",
+    "format": "prettier . --write",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@kungal/ui-core": "^2.32.0",
+    "@kungal/ui-nuxt": "^2.32.0",
+    "@kungal/ui-tokens": "^2.32.0",
+    "@kungal/ui-vue": "^2.32.0",
+    "@nuxt/eslint": "^1.15.2",
+    "@tailwindcss/vite": "^4.2.1",
+    "nuxt": "^4.3.1",
+    "nuxt-schema-org": "^5.0.10",
+    "pinia": "^3.0.4",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
+    "vue": "^3.5.29",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.111",
+    "@nuxtjs/color-mode": "^4.0.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@tailwindcss/postcss": "^4.2.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-vuejs-accessibility": "^2.5.0",
+    "pinia-plugin-persistedstate": "4.7.1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.1"
+  }
+}
