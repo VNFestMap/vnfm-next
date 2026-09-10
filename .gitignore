@@ -21,6 +21,8 @@ apps/api/tmp
 
 node_modules
 .pnpm-store
+__pycache__/
+*.pyc
 
 logs
 *.log
