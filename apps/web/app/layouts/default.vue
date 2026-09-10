@@ -24,9 +24,17 @@ const setColorMode = (mode: string) => {
     <header
       class="border-default-200 bg-content1 sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b px-4 shadow-sm md:px-6"
     >
-      <NuxtLink to="/" class="flex min-w-0 items-center gap-2">
-        <span class="text-primary truncate text-lg font-bold">VNFest</span>
-      </NuxtLink>
+      <div class="flex min-w-0 items-center gap-4">
+        <NuxtLink to="/" class="flex min-w-0 items-center gap-2">
+          <span class="text-primary truncate text-lg font-bold">VNFest</span>
+        </NuxtLink>
+        <NuxtLink to="/" class="text-default-500 hover:text-foreground hidden text-sm sm:inline">
+          目录
+        </NuxtLink>
+        <NuxtLink to="/events" class="text-default-500 hover:text-foreground hidden text-sm sm:inline">
+          活动
+        </NuxtLink>
+      </div>
 
       <div class="flex shrink-0 items-center gap-2">
         <KunButton

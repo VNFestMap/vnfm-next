@@ -18,3 +18,5 @@ pnpm dev
 ```
 
 分开启动：`pnpm dev:web` / `pnpm dev:api`。迁移：`pnpm migrate`（需在 `apps/api/.env` 填写 `DATABASE_URL`）。
+
+登录依赖本机 nextmoe-infra：`oauth` 在 `:9277`，账户中心在 `:9420`。开发用 OAuth client `vnfm-dev` / `dev-secret-vnfm-dev`（需写入 `kun_galgame_infra.oauth_clients`，redirect `http://127.0.0.1:3710/auth/callback`）。开发账号密码为 `kungal-dev`。

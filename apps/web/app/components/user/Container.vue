@@ -23,7 +23,14 @@ const reload = async () => {
   loading.value = false
   if (!me) {
     await navigateTo('/auth/login?redirect=/user')
+    return
   }
+  memberships.value = (await apiFetch<typeof memberships.value>('/me/memberships')) || []
+  pending.value = (await apiFetch<typeof pending.value>('/me/applications')) || []
+  const n = await apiFetch<{ items: typeof notices.value; unread: number }>('/notifications')
+  notices.value = n.items || []
+  unread.value = n.unread || 0
+  regs.value = (await apiFetch<typeof regs.value>('/me/registrations')) || []
 }
 
 onMounted(reload)
@@ -36,6 +43,39 @@ const handleLogout = async () => {
 const language = ref('zh')
 const theme = ref('system')
 const saving = ref(false)
+const memberships = ref<
+  { id: number; club_id: number; club_name: string; role: string; status: string; country: string }[]
+>([])
+const pending = ref<
+  { id: number; user_name: string; club_name: string; apply_reason?: string }[]
+>([])
+const notices = ref<{ id: number; title: string; message: string; is_read: boolean; created_at: string }[]>([])
+const unread = ref(0)
+const regs = ref<{ id: number; title: string; starts_at: string }[]>([])
+const bindCode = ref('')
+const bindMsg = ref('')
+
+const redeem = async () => {
+  bindMsg.value = ''
+  await apiFetch('/codes/redeem', { method: 'POST', body: { code: bindCode.value } })
+  bindMsg.value = '加入成功'
+  await reload()
+}
+
+const approveOne = async (id: number, ok: boolean) => {
+  await apiFetch(`/memberships/${id}/${ok ? 'approve' : 'reject'}`, { method: 'POST' })
+  await reload()
+}
+
+const markAll = async () => {
+  await apiFetch('/notifications/read-all', { method: 'POST' })
+  await reload()
+}
+
+const markOne = async (id: number) => {
+  await apiFetch(`/notifications/${id}/read`, { method: 'POST' })
+  await reload()
+}
 
 watch(
   () => store.profile,
@@ -123,15 +163,17 @@ const initial = computed(() => {
           <div class="grid gap-4 sm:grid-cols-3">
             <KunCard class="p-4">
               <p class="text-default-400 text-xs">我的同好会</p>
-              <p class="text-foreground mt-1 text-2xl font-semibold">0</p>
+              <p class="text-foreground mt-1 text-2xl font-semibold">
+                {{ memberships.filter((m) => m.status === 'active').length }}
+              </p>
             </KunCard>
             <KunCard class="p-4">
               <p class="text-default-400 text-xs">未读通知</p>
-              <p class="text-foreground mt-1 text-2xl font-semibold">0</p>
+              <p class="text-foreground mt-1 text-2xl font-semibold">{{ unread }}</p>
             </KunCard>
             <KunCard class="p-4">
               <p class="text-default-400 text-xs">已报名活动</p>
-              <p class="text-foreground mt-1 text-2xl font-semibold">0</p>
+              <p class="text-foreground mt-1 text-2xl font-semibold">{{ regs.length }}</p>
             </KunCard>
           </div>
         </section>
@@ -196,19 +238,57 @@ const initial = computed(() => {
           </KunCard>
         </section>
 
-        <section v-else-if="tab === 'clubs'">
-          <KunCard class="p-6">
+        <section v-else-if="tab === 'clubs'" class="space-y-4">
+          <KunCard class="space-y-3 p-6">
+            <h3 class="text-foreground font-semibold">绑定同好会</h3>
+            <div class="flex gap-2">
+              <KunInput v-model="bindCode" placeholder="绑定码" />
+              <KunButton @click="redeem">加入</KunButton>
+            </div>
+            <p v-if="bindMsg" class="text-success text-sm">{{ bindMsg }}</p>
+          </KunCard>
+          <KunCard class="space-y-2 p-6">
             <h3 class="text-foreground font-semibold">我的同好会</h3>
-            <p class="text-default-500 mt-2 text-sm">暂无同好会。从目录页申请加入，或使用绑定码。</p>
+            <p v-if="!memberships.length" class="text-default-500 text-sm">暂无同好会。</p>
+            <NuxtLink
+              v-for="m in memberships"
+              :key="m.id"
+              :to="`/clubs/${m.club_id}`"
+              class="text-foreground block text-sm"
+            >
+              {{ m.club_name }} · {{ m.role }} · {{ m.status }}
+            </NuxtLink>
+          </KunCard>
+          <KunCard v-if="pending.length" class="space-y-3 p-6">
+            <h3 class="text-foreground font-semibold">成员申请</h3>
+            <div v-for="p in pending" :key="p.id" class="flex items-center justify-between gap-2 text-sm">
+              <span>{{ p.user_name }} → {{ p.club_name }}</span>
+              <div class="flex gap-2">
+                <KunButton size="sm" color="success" @click="approveOne(p.id, true)">通过</KunButton>
+                <KunButton size="sm" variant="flat" @click="approveOne(p.id, false)">拒绝</KunButton>
+              </div>
+            </div>
           </KunCard>
         </section>
 
-        <section v-else>
-          <KunCard class="p-6">
-            <h3 class="text-foreground font-semibold">通知中心</h3>
-            <p class="text-default-500 mt-2 text-sm">
-              暂无通知。审核结果、绑定反馈会出现在这里。
-            </p>
+        <section v-else class="space-y-4">
+          <KunCard class="space-y-3 p-6">
+            <div class="flex items-center justify-between">
+              <h3 class="text-foreground font-semibold">通知中心</h3>
+              <KunButton size="sm" variant="flat" @click="markAll">全部已读</KunButton>
+            </div>
+            <p v-if="!notices.length" class="text-default-500 text-sm">暂无通知。</p>
+            <button
+              v-for="n in notices"
+              :key="n.id"
+              class="block w-full text-left"
+              @click="markOne(n.id)"
+            >
+              <p class="text-foreground text-sm" :class="n.is_read ? 'text-default-400' : 'font-medium'">
+                {{ n.title }}
+              </p>
+              <p class="text-default-500 text-xs">{{ n.message }}</p>
+            </button>
           </KunCard>
         </section>
       </div>
